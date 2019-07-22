@@ -1,15 +1,17 @@
-# scrape indeed job listings to rank given skills in order of most needed
+# Scrape indeed job listings to rank given skills in order of most needed
 # @author: Osamah Mandawi
 # @email: oamandawi@brandeis.edu 
 
-"""This is an explanation of the structure of indeed.com
 """
-# This is an example of what the first job listings page for software
-# engineering in MA looks like: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date
-# Now, if we look at a single job: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date&vjk=3916106ade6d80b3
-# Note that this is the same URL as the one before, with only vjk=3916106ade6d80b3, the unique job id, added to it.
-# Overall, this means we can replace the text after q= to get results for a different job (with spaces converted to +),
-# and replace text after l= with state abbreviation
+This is an explanation of the structure of indeed.com
+
+This is an example of what the first job listings page for software
+engineering in MA looks like: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date
+Now, if we look at a single job: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date&vjk=3916106ade6d80b3
+Note that this is the same URL as the one before, with only vjk=3916106ade6d80b3, the unique job id, added to it.
+Overall, this means we can replace the text after q= to get results for a different job (with spaces converted to +),
+and replace text after l= with state abbreviation
+"""
 
 # ? Must have the following:
 # 1. Have pip ready: https://stackoverflow.com/questions/4750806/how-do-i-install-pip-on-windows?rq=1
