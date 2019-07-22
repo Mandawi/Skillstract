@@ -226,8 +226,20 @@ def end_gui(start_time, end_time, counter_dict, sites):
     easygui.msgbox("Our final list of skills across "+str(len(sites)) +
                    " jobs, sorted from most needed to least:\n"+result+"\nFinished in "+str(datetime.timedelta(seconds=(end_time-start_time))))
 
-def bar_print(counter_dict):
+def bar_print(field,state,sites,counter_dict):
+    """Prints in a nice graph then saves it
+    
+    Arguments:
+        field {string} 
+        state {string} 
+        sites {list} 
+        counter_dict {dictionary}
+    """
     plt.bar(*zip(*counter_dict.items()))
+    plt.ylabel("Amount of job listing mentions")
+    plt.xlabel("Skill")
+    plt.suptitle("For {} {} jobs in {}, U.S.".format(str(len(sites)),field.replace("+"," "),state))
+    plt.savefig(str(len(sites))+field+state+".png")
     plt.show()
 
 
@@ -240,7 +252,7 @@ def main():
         pages_range, search_url_master, driver_path)
     counter_dict, end_time = skill_count(sites, counter_dict, driver_path)
     end_gui(start_time, end_time, counter_dict, sites)
-    bar_print(counter_dict)
+    bar_print(field,state,sites,counter_dict)
 
 
 if __name__ == "__main__":
