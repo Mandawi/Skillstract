@@ -63,6 +63,9 @@ def headless_options():
 def set_driver_path():
     """Sometimes your driver path is not installed. Other times, you don't know where it is. This installs it, if it's not there, and returns 
     where it is, when it's there.
+    
+    Returns:
+        driver_path -- path of Chrome driver
     """
     driver_path = ChromeDriverManager().install()
     return driver_path
