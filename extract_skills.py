@@ -1,25 +1,29 @@
-# Scrape indeed job listings to rank given skills in order of most needed
+# scrape indeed job listings to rank given skills in order of most needed
+# takes about 1 minute per 10 job listings or 2 minutes per page
 # @author: Osamah Mandawi
 # @email: oamandawi@brandeis.edu 
 
+"""This is an explanation of the structure of indeed.com
 """
-This is an explanation of the structure of indeed.com
+# This is an example of what the first job listings page for software
+# engineering in MA looks like: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date
+# Now, if we look at a single job: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date&vjk=3916106ade6d80b3
+# Note that this is the same URL as the one before, with only vjk=3916106ade6d80b3, the unique job id, added to it.
+# Overall, this means we can replace the text after q= to get results for a different job (with spaces converted to +),
+# and replace text after l= with state abbreviation
 
-This is an example of what the first job listings page for software
-engineering in MA looks like: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date
-Now, if we look at a single job: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date&vjk=3916106ade6d80b3
-Note that this is the same URL as the one before, with only vjk=3916106ade6d80b3, the unique job id, added to it.
-Overall, this means we can replace the text after q= to get results for a different job (with spaces converted to +),
-and replace text after l= with state abbreviation
-"""
-
-# ? Must have the following:
+# ? Must have the following: 
 # 1. Have pip ready: https://stackoverflow.com/questions/4750806/how-do-i-install-pip-on-windows?rq=1
 # * Note, you may already have pip, so check by going to cmd, typing python, and then import pip and you should get no errors, if you have it
 # 2. Have selenium ready: https://pypi.org/project/selenium/
 # * use: 'pip install selenium' without quotes in cmd
-# 3. Have easygui ready: https://pypi.org/project/easygui/
+
+# ? Nice to have the following to get visual results:
+# 1. Have easygui ready: https://pypi.org/project/easygui/
 # * use: 'pip install easygui' without quotes in cmd
+# 2. Have matplotlib ready (this is quite heavy): https://pypi.org/project/matplotlib/
+# * use: 'pip install matplotlib' without quotes in cmd
+
 
 
 # ! Get the packages to count time program took to run
@@ -28,6 +32,9 @@ import datetime
 
 # ! Get the package to create dialog boxes
 import easygui
+
+# ! Get the package to visually print results
+import matplotlib.pyplot as plt
 
 # ! Get the package to control the web
 from selenium import webdriver
@@ -57,13 +64,15 @@ def headless_options():
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--no-sandbox')
     options.add_argument('--ignore-certificate-errors')
+    prefs = {"profile.managed_default_content_settings.images": 2}
+    options.add_experimental_option("prefs", prefs)
     return options
 
 
 def set_driver_path():
     """Sometimes your driver path is not installed. Other times, you don't know where it is. This installs it, if it's not there, and returns 
     where it is, when it's there.
-    
+
     Returns:
         driver_path -- path of Chrome driver
     """
@@ -217,6 +226,10 @@ def end_gui(start_time, end_time, counter_dict, sites):
     easygui.msgbox("Our final list of skills across "+str(len(sites)) +
                    " jobs, sorted from most needed to least:\n"+result+"\nFinished in "+str(datetime.timedelta(seconds=(end_time-start_time))))
 
+def bar_print(counter_dict):
+    plt.bar(*zip(*counter_dict.items()))
+    plt.show()
+
 
 def main():
     """Run everything
@@ -227,6 +240,7 @@ def main():
         pages_range, search_url_master, driver_path)
     counter_dict, end_time = skill_count(sites, counter_dict, driver_path)
     end_gui(start_time, end_time, counter_dict, sites)
+    bar_print(counter_dict)
 
 
 if __name__ == "__main__":
