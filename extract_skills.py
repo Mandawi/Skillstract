@@ -3,10 +3,11 @@
 # @author: Osamah Mandawi
 # @email: oamandawi@brandeis.edu 
 
-"""This is an explanation of the structure of indeed.com
+"""
+This is an explanation of the structure of indeed.com
 """
 # This is an example of what the first job listings page for software
-# engineering in MA looks like: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date
+    # engineering in MA looks like: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date
 # Now, if we look at a single job: https://www.indeed.com/jobs?q=software+engineer&l=MA&sort=date&vjk=3916106ade6d80b3
 # Note that this is the same URL as the one before, with only vjk=3916106ade6d80b3, the unique job id, added to it.
 # Overall, this means we can replace the text after q= to get results for a different job (with spaces converted to +),
@@ -23,7 +24,6 @@
 # * use: 'pip install easygui' without quotes in cmd
 # 2. Have matplotlib ready (this is quite heavy): https://pypi.org/project/matplotlib/
 # * use: 'pip install matplotlib' without quotes in cmd
-
 
 
 # ! Get the packages to count time program took to run
@@ -47,7 +47,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 
 def headless_options():
-    """Sets the configurations for the driver. In our case, we add the headless settings because we want the program to crawl in the background
+    """
+    Sets the configurations for the driver. In our case, we add the headless settings because we want the program to crawl in the background
 
     Returns:
         options -- the options configurations to be used in the Google Chrome driver
@@ -70,7 +71,8 @@ def headless_options():
 
 
 def set_driver_path():
-    """Sometimes your driver path is not installed. Other times, you don't know where it is. This installs it, if it's not there, and returns 
+    """
+    Sometimes your driver path is not installed. Other times, you don't know where it is. This installs it, if it's not there, and returns
     where it is, when it's there.
 
     Returns:
@@ -225,6 +227,7 @@ def end_gui(start_time, end_time, counter_dict, sites):
         result += (k.capitalize()+" ("+str(counter_dict[k])+")\n")
     easygui.msgbox("Our final list of skills across "+str(len(sites)) +
                    " jobs, sorted from most needed to least:\n"+result+"\nFinished in "+str(datetime.timedelta(seconds=(end_time-start_time))))
+
 
 def bar_print(field,state,sites,counter_dict):
     """Prints in a nice graph then saves it
