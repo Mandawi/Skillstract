@@ -17,7 +17,7 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 master_job_link = "https://www.indeed.com/jobs?q=Software+Engineer&l=Boston"
-link2 = "https://www.indeed.com/jobs?q=Software%20Engineer&l=Boston&vjk=2826852a029ff8f6"
+link2 = "https://www.indeed.com/jobs?q=Software%20Engineer&l=Boston&vjk=2826852a029ff8f6" #Example of a job's link
 
 
 def headless_options():
@@ -45,28 +45,55 @@ def headless_options():
     return options
 
 
+def get_all_ids(driver_path, job_link, num_page):
+    ids = []
+    driver = webdriver.Chrome(driver_path, options=headless_options())
+    for page in range(0, num_page):
+        driver.get(job_link + '&start='+str(page*10))
+        ids_elements = driver.find_elements_by_xpath('//*[@data-jk]')
+        ids.extend([link.get_attribute("data-jk") for link in ids_elements])
+    return ids, driver
+
+
+def get_desc(driver, job_link, job_ids):
+    descriptions = []
+    print(job_ids)
+
+    # for each job
+    for id in job_ids:
+        driver.get(job_link + "&vjk=" + id)
+        elements = driver.find_elements_by_xpath('//div[@id="vjs-desc"]//li')
+        company = driver.find_element_by_id("vjs-cn").text
+        # print(id, elements, sep="\t")
+        elements = [el.text for el in elements]
+        descriptions.append(elements)
+
+    print(descriptions)
+
+
+# def get_desc_test(driver, job_link)
+
 def main():
     """
     Run everything
     :return: nothing
     """
     driver_path = ChromeDriverManager().install()
-    driver = webdriver.Chrome(driver_path, options=headless_options())
-    # driver.get(master_job_link)
-    #
-    # ids = driver.find_elements_by_xpath('//*[@data-jk]')
-    # print("AAAAAAA")
-    # job_id = ids[0].get_attribute("data-jk")
-    # print(job_id)
-    # driver.get(master_job_link + "&vjk" + job_id)
+
+    all_ids, driver = get_all_ids(driver_path, master_job_link, 1)
+    get_desc(driver, master_job_link, all_ids)
+
+    return
     # text = driver.find_element_by_css_selector("#vjs-desc div div")
     # print(text)
 
     driver.get(link2)
-    elements = driver.find_elements_by_xpath('//div[@id="vjs-desc"]//li')
+
+    # elements1 = [el.text for el in elements]
+    # elements = map(lambda el: el.text(), elements)
     print("AAAAAAA")
-    print(elements)
-    print(len(elements))
+    print(elements1)
+    print(len(elements1))
 
     # text = driver.find_element_by_css_selector("#vjs-desc div div div ul")
     # print(text.text)
