@@ -15,6 +15,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+import numpy as np
+import pandas as pd
+import os
 
 master_job_link = "https://www.indeed.com/jobs?q=Software+Engineer&l=Boston"
 link2 = "https://www.indeed.com/jobs?q=Software%20Engineer&l=Boston&vjk=2826852a029ff8f6" #Example of a job's link
@@ -55,21 +58,52 @@ def get_all_ids(driver_path, job_link, num_page):
     return ids, driver
 
 
+def test(driver, job_link, job_ids):
+    driver.get(job_link + "&vjk=" + job_ids)
+    company = driver.find_element_by_xpath('//*[@id="vjs-cn"]').text
+    print("Companies' ids:", company, sep="\n", end="\n\n")
+
+
 def get_desc(driver, job_link, job_ids):
+    companies = []
+    positions = []
     descriptions = []
-    print(job_ids)
+    # print(job_ids)
 
     # for each job
     for id in job_ids:
         driver.get(job_link + "&vjk=" + id)
-        elements = driver.find_elements_by_xpath('//div[@id="vjs-desc"]//li')
-        company = driver.find_element_by_id("vjs-cn").text
+
+        desc_li = driver.find_elements_by_xpath('//div[@id="vjs-desc"]//li')
+        desc_li = [el.text for el in desc_li]
+        descriptions.append(desc_li)
+        # company = driver.find_element_by_xpath('//span[@id="vjs-cn"]')
+        company = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#vjs-cn'))).text
+        companies.append(company)
+        position = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#vjs-jobtitle')))\
+            .text
+        positions.append(position)
+
         # print(id, elements, sep="\t")
-        elements = [el.text for el in elements]
-        descriptions.append(elements)
 
-    print(descriptions)
+    everything = np.array([companies, positions, descriptions])
+    everything = everything.transpose()
+    df = pd.DataFrame(data= everything, columns=["Companies", "Positions", "Descriptions"])
+    return df
+    # print(len(companies), len(positions), len(descriptions))
+    # print(everything)
 
+def write_to_csv(dframe):
+    file_name = "\df.csv"
+    directory = os.path.dirname(os.path.realpath('__file__')) + "\data"
+    try:
+        # Create target Directory
+        os.mkdir(directory)
+        print("Directory ", directory, " Created ")
+    except FileExistsError:
+        print("Directory ", directory, " already exists")
+
+    dframe.to_csv((directory + file_name), index=None, header=True)
 
 # def get_desc_test(driver, job_link)
 
@@ -78,12 +112,19 @@ def main():
     Run everything
     :return: nothing
     """
+    print(os.path.dirname(os.path.realpath('__file__')) + "\data\df.csv")
     driver_path = ChromeDriverManager().install()
 
     all_ids, driver = get_all_ids(driver_path, master_job_link, 1)
-    get_desc(driver, master_job_link, all_ids)
+    df = get_desc(driver, master_job_link, all_ids)
+    write_to_csv(df)
+
+    # test(driver, master_job_link, all_ids)
+    driver.implicitly_wait(10)
+    driver.quit()
 
     return
+
     # text = driver.find_element_by_css_selector("#vjs-desc div div")
     # print(text)
 
@@ -100,8 +141,6 @@ def main():
 
     # ids1 = map(lambda id: id.get_attributes("data-jk"), ids)
     # print("BBBBBBB", ids1, sep="\n")
-
-    driver.quit()
 
 
 if __name__ == "__main__":
