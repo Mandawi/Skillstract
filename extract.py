@@ -25,7 +25,8 @@ link2 = "https://www.indeed.com/jobs?q=Software%20Engineer&l=Boston&vjk=2826852a
 
 def headless_options():
     """
-    Sets the configurations for the driver. In our case, we add the headless settings because we want the program to crawl in the background
+    Sets the configurations for the driver. In our case, we add the headless settings because we want the program
+    to crawl in the background
 
     Returns:
         options -- the options configurations to be used in the Google Chrome driver
@@ -48,13 +49,23 @@ def headless_options():
     return options
 
 
-def get_all_ids(driver_path, job_link, num_page):
+def get_all_ids(driver_path, job_link, num_page, to_file):
+    """
+    This functions gets all the ids found in the master_job_link (adding the
+
+    :return: list of such ids
+    """
     ids = []
     driver = webdriver.Chrome(driver_path, options=headless_options())
     for page in range(0, num_page):
         driver.get(job_link + '&start='+str(page*10))
         ids_elements = driver.find_elements_by_xpath('//*[@data-jk]')
         ids.extend([link.get_attribute("data-jk") for link in ids_elements])
+
+    if to_file:
+        output = open("data\ids.txt", "w+")
+        output.writelines(["%s\n" % item for item in ids])
+        output.close()
     return ids, driver
 
 
@@ -67,31 +78,39 @@ def test(driver, job_link, job_ids):
 def get_desc(driver, job_link, job_ids):
     companies = []
     positions = []
+    all_ids = []
     descriptions = []
+
     # print(job_ids)
 
     # for each job
     for id in job_ids:
         driver.get(job_link + "&vjk=" + id)
 
-        desc_li = driver.find_elements_by_xpath('//div[@id="vjs-desc"]//li')
+        desc_li = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located(
+            (By.XPATH, '//div[@id="vjs-desc"]//li')))
+        # desc_li = driver.find_elements_by_xpath('//div[@id="vjs-desc"]//li')
         desc_li = [el.text for el in desc_li]
         descriptions.append(desc_li)
-        # company = driver.find_element_by_xpath('//span[@id="vjs-cn"]')
+
         company = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#vjs-cn'))).text
         companies.append(company)
-        position = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#vjs-jobtitle')))\
-            .text
+
+        all_ids.append(id)
+
+        position = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR,
+                                                                                     '#vjs-jobtitle'))).text
         positions.append(position)
 
         # print(id, elements, sep="\t")
 
-    everything = np.array([companies, positions, descriptions])
+    everything = np.array([companies, positions, all_ids, descriptions])
     everything = everything.transpose()
-    df = pd.DataFrame(data= everything, columns=["Companies", "Positions", "Descriptions"])
+    df = pd.DataFrame(data= everything, columns=["Companies", "Positions", "ID", "Descriptions"])
     return df
     # print(len(companies), len(positions), len(descriptions))
     # print(everything)
+
 
 def write_to_csv(dframe):
     file_name = "\df.csv"
@@ -107,6 +126,7 @@ def write_to_csv(dframe):
 
 # def get_desc_test(driver, job_link)
 
+
 def main():
     """
     Run everything
@@ -115,7 +135,8 @@ def main():
     print(os.path.dirname(os.path.realpath('__file__')) + "\data\df.csv")
     driver_path = ChromeDriverManager().install()
 
-    all_ids, driver = get_all_ids(driver_path, master_job_link, 1)
+    all_ids, driver = get_all_ids(driver_path, master_job_link, 1, True)
+    return
     df = get_desc(driver, master_job_link, all_ids)
     write_to_csv(df)
 
