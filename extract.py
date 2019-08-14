@@ -51,9 +51,9 @@ def headless_options():
 
 def get_all_ids(driver_path, job_link, num_page, to_file):
     """
-    This functions gets all the ids found in the master_job_link (adding the
+    This function gets all the ids found in the master_job_link and writes it to .txt file if to_file is true
 
-    :return: list of such ids
+    :return: list of such ids. the WebDriver itself
     """
     ids = []
     driver = webdriver.Chrome(driver_path, options=headless_options())
@@ -76,21 +76,28 @@ def test(driver, job_link, job_ids):
 
 
 def get_desc(driver, job_link, job_ids):
+    """
+    This function gets all the listed items in the job descriptions and writes them into pandas table
+
+    :param job_link: the master job link
+    :param job_ids: a list of all ids
+    :return: a Pandas DataFrame with each job's information
+    """
+
+    # These are the information to be included in the DataFrame
     companies = []
     positions = []
     all_ids = []
     descriptions = []
 
-    # print(job_ids)
-
     # for each job
     for id in job_ids:
         driver.get(job_link + "&vjk=" + id)
 
+        # wait for element to be visible then get it
         desc_li = WebDriverWait(driver, 10).until(EC.visibility_of_all_elements_located(
             (By.XPATH, '//div[@id="vjs-desc"]//li')))
-        # desc_li = driver.find_elements_by_xpath('//div[@id="vjs-desc"]//li')
-        desc_li = [el.text for el in desc_li]
+        desc_li = [el.text for el in desc_li]  # get the text part in the gotten WebElements
         descriptions.append(desc_li)
 
         company = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#vjs-cn'))).text
@@ -98,21 +105,21 @@ def get_desc(driver, job_link, job_ids):
 
         all_ids.append(id)
 
-        position = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR,
-                                                                                     '#vjs-jobtitle'))).text
+        position = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#vjs-jobtitle'))).text
         positions.append(position)
 
-        # print(id, elements, sep="\t")
-
+    #
     everything = np.array([companies, positions, all_ids, descriptions])
     everything = everything.transpose()
-    df = pd.DataFrame(data= everything, columns=["Companies", "Positions", "ID", "Descriptions"])
+    df = pd.DataFrame(data=everything, columns=["Companies", "Positions", "ID", "Descriptions"])
     return df
-    # print(len(companies), len(positions), len(descriptions))
-    # print(everything)
 
 
 def write_to_csv(dframe):
+    """
+    This function creates a folder data (optional) and export the DataFrame to a .csv file
+    :return: No return
+    """
     file_name = "\df.csv"
     directory = os.path.dirname(os.path.realpath('__file__')) + "\data"
     try:
@@ -132,7 +139,7 @@ def main():
     Run everything
     :return: nothing
     """
-    print(os.path.dirname(os.path.realpath('__file__')) + "\data\df.csv")
+    # print(os.path.dirname(os.path.realpath('__file__')) + "\data\df.csv")
     driver_path = ChromeDriverManager().install()
 
     all_ids, driver = get_all_ids(driver_path, master_job_link, 1, True)
@@ -145,23 +152,6 @@ def main():
     driver.quit()
 
     return
-
-    # text = driver.find_element_by_css_selector("#vjs-desc div div")
-    # print(text)
-
-    driver.get(link2)
-
-    # elements1 = [el.text for el in elements]
-    # elements = map(lambda el: el.text(), elements)
-    print("AAAAAAA")
-    print(elements1)
-    print(len(elements1))
-
-    # text = driver.find_element_by_css_selector("#vjs-desc div div div ul")
-    # print(text.text)
-
-    # ids1 = map(lambda id: id.get_attributes("data-jk"), ids)
-    # print("BBBBBBB", ids1, sep="\n")
 
 
 if __name__ == "__main__":
