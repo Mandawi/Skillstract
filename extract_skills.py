@@ -37,11 +37,6 @@ import matplotlib.pyplot as plt
 
 # ! Get the package to control the web
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 
@@ -248,9 +243,9 @@ def bar_print(field, state, sites, counter_dict):
 def main():
     """Run everything
     """
-    input()
+    input("Press enter to start!")
     driver_path = set_driver_path()
-    field, state, pages_range, skills, counter_dict, search_url_master = start_gui()
+    field, state, pages_range, _, counter_dict, search_url_master = start_gui()
     start_time, sites = gather_job_listings(
         pages_range, search_url_master, driver_path)
     counter_dict, end_time = skill_count(sites, counter_dict, driver_path)
