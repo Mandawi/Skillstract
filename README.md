@@ -25,3 +25,5 @@ Currently takes about 1 minute per 10 job listings
 <br>use: 'pip install easygui' without quotes in cmd
 <br>Have matplotlib ready (this is quite heavy): https://pypi.org/project/matplotlib/
 <br>use: 'pip install matplotlib' without quotes in cmd
+<br>
+<br><br><h6>Logo: https://www.flaticon.com/authors/eucalyp</h6>
