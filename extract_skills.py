@@ -135,10 +135,10 @@ def gather_job_listings(pages_range, search_url_master, driver_path):
     sites = []
     for i in range(0, pages_range):
         driver = set_driver(driver_path)
-        #! crawl to the first page of the search
+        # crawl to the first page of the search
         driver.get(
             search_url_master+'&start='+str(i*10))
-        #! get the ids of all the job listings
+        # get the ids of all the job listings
         ids = driver.find_elements_by_xpath('//*[@data-jk]')
         jdks = []
         for ii in ids:
